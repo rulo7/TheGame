@@ -9,13 +9,12 @@ public class OrtographicCameraFollowCharacter : MonoBehaviour {
 	public Renderer limits;
 	// scene camera
 	public Camera camera;
-	// speed camera follows the target
-	public float speed;
 	// offset distance between center camera and target
 	public float offset;
 	// distance to move the target for change the camera direction offset
 	public float targetFreeDistance = 0.1f;
-
+	// The camera speed
+	public float speed;
 	private float cameraWidth;
 	private float cameraHeight;
 	private float lastTargetX;
@@ -33,7 +32,9 @@ public class OrtographicCameraFollowCharacter : MonoBehaviour {
 		int directionTargetIndex = updateTargetIndex();
 		float positionX = getCameraPositionX(directionTargetIndex);
 		float positionY = getCameraPositionY();
-		float step = speed * Time.deltaTime;
+
+		float distance = Vector2.Distance(new Vector2(camera.transform.position.x, camera.transform.position.y), new Vector2(target.transform.position.x, positionY));
+		float step = (Time.deltaTime * distance) * speed;
 		Vector3 newPosition = new Vector3 (target.transform.position.x + (directionTargetIndex * offset), positionY, camera.transform.position.z);
 		if (positionX != -1){
 			newPosition = new Vector3 (positionX, positionY, camera.transform.position.z);	
