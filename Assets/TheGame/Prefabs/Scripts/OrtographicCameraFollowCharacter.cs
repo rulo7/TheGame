@@ -9,8 +9,6 @@ public class OrtographicCameraFollowCharacter : MonoBehaviour {
 	public Renderer limits;
 	// scene camera
 	public Camera camera;
-	// offset distance between center camera and target
-	public float offset;
 	// distance to move the target for change the camera direction offset
 	public float targetFreeDistance = 0.1f;
 	// The camera speed
@@ -27,19 +25,24 @@ public class OrtographicCameraFollowCharacter : MonoBehaviour {
 		lastTargetX = target.transform.position.x;
 	}
 			
+	int directionTargetIndex;
+	private float positionX;
+	private float positionY;
+
+	void FixedUpdate(){
+		directionTargetIndex = updateTargetIndex();
+		positionX = getCameraPositionX(directionTargetIndex);
+		positionY = getCameraPositionY();
+	}
+
 	// Update is called once per frame
 	void Update () {
-		int directionTargetIndex = updateTargetIndex();
-		float positionX = getCameraPositionX(directionTargetIndex);
-		float positionY = getCameraPositionY();
-
 		float distance = Vector2.Distance(new Vector2(camera.transform.position.x, camera.transform.position.y), new Vector2(target.transform.position.x, positionY));
 		float step = (Time.deltaTime * distance) * speed;
-		Vector3 newPosition = new Vector3 (target.transform.position.x + (directionTargetIndex * offset), positionY, camera.transform.position.z);
+		Vector3 newPosition = new Vector3 (target.transform.position.x, positionY, camera.transform.position.z);
 		if (positionX != -1){
 			newPosition = new Vector3 (positionX, positionY, camera.transform.position.z);	
 		}
-
 		camera.transform.position = Vector3.MoveTowards(camera.transform.position, newPosition, step);
 	}
 
@@ -66,10 +69,10 @@ public class OrtographicCameraFollowCharacter : MonoBehaviour {
 		float rightPointLimit = rightLimit - (cameraWidth / 2.0f);
 		float leftPointLimit = leftLimit + (cameraWidth / 2.0f);
 		float targetPosition = target.transform.position.x;
-		if (targetPosition - targetColliderHalfWidth < (leftPointLimit - (offset *directionTargetIndex))) {
+		if (targetPosition - targetColliderHalfWidth < leftPointLimit) {
 			return leftPointLimit;
 		}
-		if (targetPosition + targetColliderHalfWidth > rightPointLimit - (offset * directionTargetIndex)) {
+		if (targetPosition + targetColliderHalfWidth > rightPointLimit) {
 			return rightPointLimit;
 		}
 		return -1;
